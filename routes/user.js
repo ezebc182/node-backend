@@ -14,20 +14,28 @@ app.get("/", function(req, res) {
     let notifications = null;
     let success = true;
     let data = null;
+    let from = Number(req.query.from) || 0;
 
-    User.find({}, (err, users) => {
-        if (err) {
-            notifications = err;
-            success = false;
-        }
-        return res.status(200).json({
-            success,
-            notifications,
-            data: {
-                users: users
+    User.find({})
+        .skip(from)
+        .limit(5)
+        .exec((err, users) => {
+            if (err) {
+                notifications = err;
+                success = false;
             }
+
+            User.count({}, (err, count) => {
+                return res.status(200).json({
+                    success,
+                    notifications,
+                    data: {
+                        users: users,
+                        total: count
+                    }
+                });
+            })
         });
-    });
 });
 
 

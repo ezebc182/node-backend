@@ -10,11 +10,23 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const appRoutes = require("./routes/route");
-const loginRoutes = require("./routes/login");
-const userRoutes = require("./routes/users");
 
+const loginRoutes = require("./routes/login");
+const hospitalRoutes = require("./routes/hospital");
+const medicRoutes = require("./routes/medic");
+const userRoutes = require("./routes/user");
+const searchRoutes = require("./routes/search");
+const uploadRoutes = require("./routes/upload");
+const imageRoutes = require("./routes/image");
+
+app.use("/hospitals", hospitalRoutes);
+app.use("/medics", medicRoutes);
 app.use('/users', userRoutes);
 app.use("/login", loginRoutes);
+app.use("/search", searchRoutes);
+app.use("/upload", uploadRoutes);
+app.use("/img", imageRoutes);
+
 app.use("/", appRoutes);
 // DB connection
 

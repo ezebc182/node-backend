@@ -12,12 +12,12 @@ exports.verifyToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({
                 success: false,
-                notifications: "Invalid token",
+                notifications: err,
                 data: null
             });
         }
 
-        req.user = decode.user;
+        req.user = decoded.user;
         next();
     });
 };
