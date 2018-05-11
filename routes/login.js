@@ -28,7 +28,8 @@ async function verify(token) {
     return {
         name: payload.name,
         email: payload.email,
-        img: payload.picture
+        img: payload.picture,
+        google: true
     }
 }
 //verify().catch(console.error);
@@ -47,10 +48,84 @@ app.post('/google', async(req, res) => {
             });
         });
 
-    res.status(200).json({
-        sucess: true,
-        data: googleUser
+    User.findOne({ email: googleUser.email }, (err, userDB) => {
+        if (err) {
+            return res.status(500).json({
+                notifications: err,
+                message: 'Error, there is not a user that match in our records',
+                success: false,
+                data: null
+            });
+        }
+
+        if (userDB) {
+
+            if (!userDB.google) {
+                return res.status(400).json({
+                    notifications: err,
+                    message: 'You must to login with regular method',
+                    success: false,
+                    data: null
+                });
+            } else {
+                let token = jwt.sign({
+                    user: userDB
+                }, SEED, {
+                    expiresIn: 14400
+                });
+
+
+                res.status(200).json({
+                    sucess: true,
+                    data: {
+                        user: userDB,
+                        token
+                    },
+                    notifications: null
+                });
+            }
+        } else {
+            let user = new User();
+            user.name = googleUser.name;
+            user.email = googleUser.email;
+            user.avatar = googleUser.img;
+            user.google = googleUser.google;
+            user.password = ':)';
+
+            user.save((err, userDB) => {
+                if (err) {
+                    return res.status(500).json({
+                        notifications: err,
+                        message: 'Error, saving new user ' + err,
+                        success: false,
+                        data: null
+                    });
+                }
+
+                let token = jwt.sign({
+                    user: userDB
+                }, SEED, {
+                    expiresIn: 14400
+                });
+
+
+                res.status(200).json({
+                    sucess: true,
+                    data: {
+                        user: userDB,
+                        token
+                    },
+                    notifications: null
+                });
+            });
+        }
     });
+
+
+    // res.status(200).json({
+    //     sucess: true,
+    //     data: googleUser
+    // });
 
 });
 
